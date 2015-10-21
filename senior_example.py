@@ -91,3 +91,246 @@ def fib_g(max):
         n = n + 1
 for n in fib_g(10):
     print n
+
+"""
+    map && reduce
+"""
+
+
+def char2int(s):
+    return {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4,
+            '5': 5, '6': 6, '7': 7, '8': 8, '9': 9}[s]
+
+
+def str2int(s):
+    return reduce(lambda x, y: x * 10 + y, map(char2int, s))
+
+
+print str2int('1234567')
+
+
+names = ['adam', 'LISA', 'barT']
+
+print map(lambda x: x.capitalize(), names)
+
+
+def prod(L):
+    return reduce(lambda x, y: x * y, L)
+print prod([100])
+
+
+"""
+    filter
+"""
+
+print filter(lambda x: len(x) == 5, names)
+
+
+"""
+    sorted
+"""
+
+
+def cmp_ignore_case(s1, s2):
+    u1 = s1.upper()
+    u2 = s2.upper()
+    if u1 < u2:
+        return -1
+    if u1 > u2:
+        return 1
+    return 0
+
+
+print sorted(names, cmp_ignore_case)
+
+"""
+    funcation is a return value
+"""
+
+
+def lazy_sum(*args):
+    def sum():
+        ax = 0
+        for n in args:
+            ax = ax + n
+        return ax
+    return sum
+f = lazy_sum(*[1, 2, 3])
+print f
+print f()
+
+# so we can have a closures,note that i can change.
+
+"""
+全部都是9！原因就在于返回的函数引用了变量i，但它并非立刻执行。等到3个函数都返回时，它们所引用的变量i已经变成了3，因此最终结果为9。
+"""
+
+
+def count():
+    fs = []
+    for i in range(1, 4):
+        def f():
+            return i * i
+        fs.append(f)
+    return fs
+f1, f2, f3 = count()
+
+print f1(), f2(), f3()
+
+
+def count():
+    fs = []
+    for i in range(1, 4):
+        def f(j):
+            def g():
+                return j * j
+            return g
+        fs.append(f(i))
+    return fs
+f1, f2, f3 = count()
+
+print f1(), f2(), f3()
+
+"""
+    lambda limit:匿名函数有个限制，就是只能有一个表达式，不用写return，返回值就是该表达式的结果。
+"""
+
+"""
+装饰模式
+"""
+
+
+def log(func):
+    def wrapper(*args, **kw):
+        print 'call %s():' % func.__name__
+        return func(*args, **kw)
+    return wrapper
+
+
+@log
+def now():
+    print '2013-12-25'
+
+now()
+
+# same as @log
+
+
+def now_1():
+    print '2013-12-25'
+log(now_1)()
+
+
+def log(text):
+    def decorator(func):
+        def wrapper(*args, **kw):
+            print '%s %s():' % (text, func.__name__)
+            return func(*args, **kw)
+        return wrapper
+    return decorator
+
+
+@log("hello")
+def now():
+    print '2013-12-25'
+
+now()
+
+print now.__name__
+
+
+import functools
+
+
+def log_next(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kw):
+        print 'call %s():' % func.__name__
+        return func(*args, **kw)
+    return wrapper
+
+
+@log_next
+def now():
+    print '2013-12-25'
+
+now()
+
+print now.__name__
+
+
+import functools
+
+
+def log_second(text):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kw):
+            print '%s %s():' % (text, func.__name__)
+            return func(*args, **kw)
+        return wrapper
+    return decorator
+
+
+@log_second('ccc')
+def now():
+    print '2013-12-25'
+
+now()
+
+print now.__name__
+
+
+import functools
+
+
+# TODO ,dynamic func
+def log_second(args_text):
+    print 'args_text:', args_text
+
+    if callable(args_text) == True:
+        print 'hello'
+
+        @functools.wraps(args_text)
+        def wrapper(*args, **kw):
+            print 'call %s():' % args_text.__name__
+            return args_text(*args, **kw)
+        return wrapper
+
+    else:
+
+        def decorator(func):
+            @functools.wraps(func)
+            def wrapper(*args, **kw):
+                print '%s %s():' % (args_text, func.__name__)
+                return func(*args, **kw)
+            return wrapper
+        return decorator
+
+
+@log_second('ccc')
+def now():
+    print '2013-12-25'
+
+now()
+
+
+@log_second
+def now():
+    print '2013-12-25'
+now()
+
+
+"""
+    偏函数,简单总结functools.partial的作用就是，把一个函数的某些参数给固定住（也就是设置默认值），返回一个新的函数，调用这个新函数会更简单。
+"""
+
+
+import functools
+int10 = functools.partial(int, base=10)
+print int10('1234567')
+print int10('1000000', base=8)
+
+
+max2 = functools.partial(max, 10)
+print max2(5, 6, 7)

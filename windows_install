@@ -1,0 +1,6 @@
+pip install --index-url=http://pypi.python.org/simple/ --trusted-host pypi.python.org  --allow-external MySQL-python --allow-unverified MySQL-python  MySQL-python
+
+
+
+
+pip install --index-url=http://pypi.python.org/simple/ --trusted-host pypi.python.org  --allow-external wheel --allow-unverified wheel  wheel
